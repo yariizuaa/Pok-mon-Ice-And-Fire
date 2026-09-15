@@ -19,7 +19,7 @@ public class FabricaPokemons {
         return p;
     }
 
-    public static Pokemon selvagemAleatorio() {
+    public static Pokemon selvagemAleatorio(int maiorNivelDoJogador) {
         TipoElemental[] tipos = TipoElemental.values();
         TipoElemental tipo = tipos[(int) (Math.random() * tipos.length)];
         int vida = 24 + (int) (Math.random() * 18);
@@ -31,8 +31,12 @@ public class FabricaPokemons {
             case AGUA: p = new Squirtle("Squirtle", vida, ataque, defesa); break;
             default: p = new Bulbassaur("Bulbasaur", vida, ataque, defesa); break;
         }
-        // Nivel aleatorio entre o nivel padrao e o nivel padrao + variacao maxima (ex.: 10 a 15).
-        int nivel = NIVEL_PADRAO + (int) (Math.random() * (VARIACAO_MAX_NIVEL_SELVAGEM + 1));
+        // Nivel base = media entre o nivel padrao e o nivel mais alto da equipe do
+        // jogador: conforme o jogador evolui, os selvagens ficam mais fortes junto
+        // (mas nao pulam direto para o nivel do jogador — a media suaviza a curva).
+        int nivelBase = (NIVEL_PADRAO + Math.max(NIVEL_PADRAO, maiorNivelDoJogador)) / 2;
+        // Variacao aleatoria em torno do nivel base (ex.: base 15 -> 15 a 20).
+        int nivel = nivelBase + (int) (Math.random() * (VARIACAO_MAX_NIVEL_SELVAGEM + 1));
         p.definirNivel(nivel);
         return p;
     }
