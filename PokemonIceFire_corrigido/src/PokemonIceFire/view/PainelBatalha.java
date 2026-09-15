@@ -184,7 +184,7 @@ public class PainelBatalha extends JPanel {
             atualizarBotoes();
             return;
         }
-        Pokemon selvagem = FabricaPokemons.selvagemAleatorio();
+        Pokemon selvagem = FabricaPokemons.selvagemAleatorio(janela.getTreinador().getMaiorNivelDaEquipe());
         batalhaAtual = new Batalha(ativa, selvagem);
         barraJogador.setCriatura(ativa);
         barraSelvagem.setCriatura(selvagem);
