@@ -14,6 +14,7 @@ public class JanelaPrincipal extends JFrame {
     private PainelBatalha painelBatalha;
     private PainelEquipe painelEquipe;
     private PainelItens painelItens;
+    private PainelFimDeJogo painelFimDeJogo;
 
     public JanelaPrincipal() {
         setTitle("Poke Ice and Fire");
@@ -25,12 +26,14 @@ public class JanelaPrincipal extends JFrame {
         painelBatalha = new PainelBatalha(this);
         painelEquipe = new PainelEquipe(this);
         painelItens = new PainelItens(this);
+        painelFimDeJogo = new PainelFimDeJogo(this);
 
         cartas.add(new PainelMenu(this), "MENU");
         cartas.add(new PainelEscolha(this), "ESCOLHA");
         cartas.add(painelBatalha, "BATALHA");
         cartas.add(painelEquipe, "EQUIPE");
         cartas.add(painelItens, "ITENS");
+        cartas.add(painelFimDeJogo, "FIM_DE_JOGO");
 
         add(cartas);
         mostrar("MENU");
@@ -40,6 +43,7 @@ public class JanelaPrincipal extends JFrame {
         if (nome.equals("EQUIPE")) painelEquipe.atualizar();
         if (nome.equals("ITENS")) painelItens.atualizar();
         if (nome.equals("BATALHA")) painelBatalha.atualizarVidaExibida();
+        if (nome.equals("FIM_DE_JOGO")) painelFimDeJogo.atualizar(treinador, bestiario);
         cardLayout.show(cartas, nome);
     }
 
@@ -52,7 +56,7 @@ public class JanelaPrincipal extends JFrame {
     }
 
     /**
-     * Chamado pela tela de Batalha quando o jogador clica em "Reiniciar
+     * Chamado pela tela de Fim de Jogo quando o jogador clica em "Reiniciar
      * Jornada" após uma derrota completa (toda a equipe desmaiada). Zera o
      * treinador e o bestiário e volta para a tela de escolha do pokémon
      * inicial, como se o jogo estivesse começando do zero.
@@ -61,6 +65,18 @@ public class JanelaPrincipal extends JFrame {
         treinador = null;
         bestiario = new Pokedex();
         mostrar("ESCOLHA");
+    }
+
+    /**
+     * Chamado pela tela de Fim de Jogo quando o jogador clica em "Menu
+     * Principal" em vez de reiniciar direto. Também zera o treinador e o
+     * bestiário (a jornada anterior já terminou), mas volta para a tela
+     * inicial em vez de pular direto para a escolha do pokémon inicial.
+     */
+    void voltarAoMenu() {
+        treinador = null;
+        bestiario = new Pokedex();
+        mostrar("MENU");
     }
 
     Treinador getTreinador() { return treinador; }
