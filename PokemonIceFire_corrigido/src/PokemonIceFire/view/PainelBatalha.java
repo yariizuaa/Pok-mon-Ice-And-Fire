@@ -18,7 +18,7 @@ public class PainelBatalha extends JPanel {
     private PainelArena arena = new PainelArena();
     private BarraVida barraJogador, barraSelvagem;
     private JTextArea logArea = new JTextArea();
-    private JButton btnAtacar, btnCapturar, btnFugir, btnExplorar, btnReiniciar;
+    private JButton btnAtacar, btnCapturar, btnFugir, btnExplorar;
     private JLabel lblTreinador = new JLabel(" ");
     private JLabel lblEquipe = new JLabel(" ");
     private Batalha batalhaAtual;
@@ -144,10 +144,8 @@ public class PainelBatalha extends JPanel {
         btnCapturar.addActionListener(e -> capturar());
         btnFugir = UIUtil.botaoPill("Fugir", Constantes.PRETO2, Color.WHITE, 218, 42);
         btnFugir.addActionListener(e -> fugir());
-        btnReiniciar = UIUtil.botaoPill("Reiniciar Jornada", Constantes.CREME, Constantes.PRETO, 218, 42);
-        btnReiniciar.addActionListener(e -> janela.reiniciarJornada());
 
-        for (JButton b : new JButton[]{btnExplorar, btnAtacar, btnCapturar, btnFugir, btnReiniciar}) {
+        for (JButton b : new JButton[]{btnExplorar, btnAtacar, btnCapturar, btnFugir}) {
             b.setAlignmentX(Component.LEFT_ALIGNMENT);
             lado.add(b);
             lado.add(Box.createVerticalStrut(10));
@@ -223,12 +221,25 @@ public class PainelBatalha extends JPanel {
                 barraJogador.setCriatura(batalhaAtual.getDoJogador()); // resincroniza a barra (vida maxima pode ter aumentado ao subir de nivel)
             } else if (janela.getTreinador().getAtiva() == null) {
                 logArea.append("Todos os seus pokémon desmaiaram! Sua jornada chega ao fim...\n");
+                agendarTransicaoParaFimDeJogo();
             } else {
                 logArea.append("Escolha outra criatura na aba Equipe/Bestiário para continuar a batalha contra "
                         + batalhaAtual.getSelvagem().getNome() + "!\n");
             }
             atualizarBotoes();
         }
+    }
+
+    /**
+     * Espera a animação de dano na tela de batalha terminar (ver
+     * {@link BarraVida#animarDano}) antes de levar o jogador para a tela
+     * dedicada de Fim de Jogo — assim ele ainda vê o golpe final acontecer,
+     * em vez de a tela trocar de repente no meio da animação.
+     */
+    private void agendarTransicaoParaFimDeJogo() {
+        Timer atraso = new Timer(1300, e -> janela.mostrar("FIM_DE_JOGO"));
+        atraso.setRepeats(false);
+        atraso.start();
     }
 
     /**
@@ -341,7 +352,9 @@ public class PainelBatalha extends JPanel {
      * - O selvagem ainda está em campo mas o pokémon ativo desmaiou (e a
      *   equipe ainda tem outra criatura viva): nenhum botão — o jogador
      *   precisa ir à aba Equipe/Bestiário escolher outra criatura.
-     * - Toda a equipe desmaiada (derrota completa): só "Reiniciar Jornada".
+     * - Toda a equipe desmaiada (derrota completa): nenhum botão aqui —
+     *   {@link #agendarTransicaoParaFimDeJogo()} já leva o jogador para a
+     *   tela dedicada de Fim de Jogo.
      */
     private void atualizarBotoes() {
         boolean derrotaTotal = janela.getTreinador() != null && janela.getTreinador().getAtiva() == null;
@@ -353,7 +366,6 @@ public class PainelBatalha extends JPanel {
         btnAtacar.setVisible(emBatalha);
         btnCapturar.setVisible(emBatalha);
         btnFugir.setVisible(emBatalha);
-        btnReiniciar.setVisible(derrotaTotal);
     }
 
     /**
