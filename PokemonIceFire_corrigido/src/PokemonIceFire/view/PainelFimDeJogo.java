@@ -1,6 +1,5 @@
 package PokemonIceFire.view;
 
-import PokemonIceFire.modelo.Pokemon;
 import PokemonIceFire.treinador.Pokedex;
 import PokemonIceFire.treinador.Treinador;
 import javax.swing.*;
@@ -92,17 +91,8 @@ public class PainelFimDeJogo extends JPanel {
         lblResumo.setText(nome + ", sua jornada chegou ao fim.");
 
         int capturadas = bestiario != null ? bestiario.total() : 0;
-        int maiorNivel = maiorNivelAlcancado(treinador);
+        int maiorNivel = treinador != null ? treinador.getMaiorNivelDaEquipe() : 0;
         lblEstatisticas.setText(capturadas + " espécie(s) registrada(s) no Bestiário  •  maior nível alcançado: " + maiorNivel);
-    }
-
-    private int maiorNivelAlcancado(Treinador treinador) {
-        if (treinador == null) return 0;
-        int maior = 0;
-        for (Pokemon p : treinador.getEquipe()) {
-            maior = Math.max(maior, p.getNivel());
-        }
-        return maior;
     }
 
     /** Fundo escuro (tema de derrota), similar ao gradiente + marca d'agua do menu, mas em tons vermelho/preto. */
