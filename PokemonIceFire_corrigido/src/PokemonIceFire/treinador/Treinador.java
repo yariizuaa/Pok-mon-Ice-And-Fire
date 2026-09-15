@@ -49,6 +49,21 @@ public class Treinador {
         return true;
     }
 
+    /**
+     * Maior nível entre TODAS as criaturas da equipe (inclusive as
+     * desmaiadas) — usado para calibrar a dificuldade dos encontros
+     * selvagens conforme o jogador avança (ver
+     * {@link PokemonIceFire.modelo.FabricaPokemons#selvagemAleatorio}).
+     * Retorna 0 se a equipe estiver vazia.
+     */
+    public int getMaiorNivelDaEquipe() {
+        int maior = 0;
+        for (Pokemon c : equipe) {
+            maior = Math.max(maior, c.getNivel());
+        }
+        return maior;
+    }
+
     // ---------------------------------------------------------------------
     // Inventário de itens (poções)
     // ---------------------------------------------------------------------
