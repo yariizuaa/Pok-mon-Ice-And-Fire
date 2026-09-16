@@ -19,6 +19,22 @@ public class FabricaPokemons {
         return p;
     }
 
+    /**
+     * Recria uma criatura a partir do nome da espécie (ex.: "Charmander"),
+     * usado ao restaurar uma jornada salva (ver
+     * {@link PokemonIceFire.persistencia.Persistencia}) — o arquivo de save
+     * guarda só o nome da classe, não a instância em si, então é preciso
+     * reconstruir o objeto certo a partir desse nome.
+     */
+    public static Pokemon criarPorEspecie(String especie, String nome, int vidaMaxima, int ataque, int defesa) {
+        switch (especie) {
+            case "Charmander": return new Charmander(nome, vidaMaxima, ataque, defesa);
+            case "Squirtle": return new Squirtle(nome, vidaMaxima, ataque, defesa);
+            case "Bulbassaur": return new Bulbassaur(nome, vidaMaxima, ataque, defesa);
+            default: throw new IllegalArgumentException("Espécie desconhecida no save: " + especie);
+        }
+    }
+
     public static Pokemon selvagemAleatorio(int maiorNivelDoJogador) {
         TipoElemental[] tipos = TipoElemental.values();
         TipoElemental tipo = tipos[(int) (Math.random() * tipos.length)];
