@@ -75,6 +75,26 @@ public abstract class Pokemon {
     }
 
     /**
+     * Ajusta a vida atual diretamente para um valor específico (limitado
+     * entre 0 e a vida máxima). Usado apenas ao restaurar uma jornada salva
+     * (ver {@link PokemonIceFire.persistencia.Persistencia}) — durante uma
+     * batalha normal, use {@link #receberDano} ou {@link #curar}.
+     */
+    public void definirVidaAtual(int vidaAtual) {
+        this.vidaAtual = Math.max(0, Math.min(vidaMaxima, vidaAtual));
+    }
+
+    /**
+     * Ajusta o XP acumulado diretamente para um valor específico, sem
+     * disparar a lógica de subida de nível de {@link #ganharXp} (o nível já
+     * é restaurado separadamente via {@link #definirNivel}). Usado apenas
+     * ao restaurar uma jornada salva.
+     */
+    public void definirXp(int xp) {
+        this.xp = Math.max(0, xp);
+    }
+
+    /**
      * Adiciona XP à criatura (ex.: recompensa por vencer uma batalha) e sobe
      * de nível automaticamente sempre que o XP acumulado atinge o necessário
      * — podendo subir mais de um nível de uma vez. Cada nível ganho aumenta
