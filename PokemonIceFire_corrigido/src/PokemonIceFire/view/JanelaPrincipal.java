@@ -3,6 +3,7 @@ package PokemonIceFire.view;
 import PokemonIceFire.modelo.Pokemon;
 import PokemonIceFire.treinador.Treinador;
 import PokemonIceFire.treinador.Pokedex;
+import PokemonIceFire.persistencia.Persistencia;
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,6 +12,7 @@ public class JanelaPrincipal extends JFrame {
     private JPanel cartas = new JPanel(cardLayout);
     private Treinador treinador;
     private Pokedex bestiario = new Pokedex();
+    private PainelMenu painelMenu;
     private PainelBatalha painelBatalha;
     private PainelEquipe painelEquipe;
     private PainelItens painelItens;
@@ -23,12 +25,13 @@ public class JanelaPrincipal extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
+        painelMenu = new PainelMenu(this);
         painelBatalha = new PainelBatalha(this);
         painelEquipe = new PainelEquipe(this);
         painelItens = new PainelItens(this);
         painelFimDeJogo = new PainelFimDeJogo(this);
 
-        cartas.add(new PainelMenu(this), "MENU");
+        cartas.add(painelMenu, "MENU");
         cartas.add(new PainelEscolha(this), "ESCOLHA");
         cartas.add(painelBatalha, "BATALHA");
         cartas.add(painelEquipe, "EQUIPE");
@@ -37,13 +40,24 @@ public class JanelaPrincipal extends JFrame {
 
         add(cartas);
         mostrar("MENU");
+
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                salvarProgresso();
+            }
+        });
     }
 
     void mostrar(String nome) {
+        if (nome.equals("MENU")) painelMenu.atualizar();
         if (nome.equals("EQUIPE")) painelEquipe.atualizar();
         if (nome.equals("ITENS")) painelItens.atualizar();
         if (nome.equals("BATALHA")) painelBatalha.atualizarVidaExibida();
-        if (nome.equals("FIM_DE_JOGO")) painelFimDeJogo.atualizar(treinador, bestiario);
+        if (nome.equals("FIM_DE_JOGO")) {
+            painelFimDeJogo.atualizar(treinador, bestiario);
+            Persistencia.apagar(); // a jornada acabou de verdade - nao ha mais o que retomar
+        }
         cardLayout.show(cartas, nome);
     }
 
@@ -52,7 +66,35 @@ public class JanelaPrincipal extends JFrame {
         treinador.adicionarNaEquipe(inicial);
         bestiario.registrar(inicial);
         painelBatalha.iniciar(treinador);
+        salvarProgresso();
         mostrar("BATALHA");
+    }
+
+    /**
+     * Carrega a jornada salva em disco (ver {@link Persistencia}) e retoma a
+     * exploração de onde o jogador parou. Chamado pelo botão "Continuar
+     * Jornada" do menu, que só aparece quando existe um save. Se o save não
+     * puder ser lido (ex.: apagado ou corrompido entre o menu abrir e o
+     * clique), avisa o jogador em vez de travar o jogo.
+     */
+    void continuarJornada() {
+        Persistencia.EstadoSalvo estado = Persistencia.carregar();
+        if (estado == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Não foi possível carregar a jornada salva.",
+                    "Erro ao carregar", JOptionPane.ERROR_MESSAGE);
+            mostrar("MENU");
+            return;
+        }
+        treinador = estado.treinador;
+        bestiario = estado.bestiario;
+        painelBatalha.iniciar(treinador);
+        mostrar("BATALHA");
+    }
+
+    /** Salva o progresso atual em disco. Chamado após qualquer ação que mude o estado da jornada (batalha, captura, uso de item). */
+    void salvarProgresso() {
+        Persistencia.salvar(treinador, bestiario);
     }
 
     /**
