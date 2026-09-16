@@ -102,7 +102,14 @@ public class PainelEquipe extends JPanel {
 
     private JPanel criarMiniCartao(Pokemon c, boolean ativoAtual, boolean podeTrocar) {
         Color corTipo = c.getTipo().corPrincipal();
-        JPanel p = new JPanel(new BorderLayout()) {
+
+        // Cartão unificado: BorderLayout com espaçamento entre sprite e coluna
+        // de informações (era `new BorderLayout()`, sem gap nenhum — os dois
+        // ficavam colados). O contorno continua sendo o arredondado pintado à
+        // mão em UIUtil.pintarCartao (mesmo tom amadeirado do exemplo, ~rgb
+        // 210,195,175), em vez de um LineBorder quadrado por cima — assim não
+        // duplica a borda nem destoa dos outros cartões do jogo.
+        JPanel cardCriatura = new JPanel(new BorderLayout(10, 10)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -115,8 +122,11 @@ public class PainelEquipe extends JPanel {
                 g2.dispose();
             }
         };
-        p.setOpaque(false);
-        p.setPreferredSize(new Dimension(290, 146));
+        cardCriatura.setOpaque(false);
+        // Cartao mais encorpado (era 290x146) - da mais respiro para nome,
+        // tipo, barra de vida e selecao conviverem num unico bloco.
+        cardCriatura.setPreferredSize(new Dimension(330, 180));
+        cardCriatura.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         JPanel spriteP = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
@@ -128,13 +138,12 @@ public class PainelEquipe extends JPanel {
             }
         };
         spriteP.setOpaque(false);
-        spriteP.setPreferredSize(new Dimension(100, 146));
-        p.add(spriteP, BorderLayout.WEST);
+        spriteP.setPreferredSize(new Dimension(110, 156));
+        cardCriatura.add(spriteP, BorderLayout.WEST);
 
         JPanel info = new JPanel();
         info.setOpaque(false);
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
-        info.setBorder(BorderFactory.createEmptyBorder(16, 4, 12, 14));
 
         JLabel nome = new JLabel(c.getNome() + "  Nv." + c.getNivel());
         nome.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -146,24 +155,25 @@ public class PainelEquipe extends JPanel {
         tipo.setForeground(corTipo);
         tipo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        // Barra de HP mais grossa (era 10px de altura) para melhorar a legibilidade.
         JComponent miniBarra = new JComponent() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int w = getWidth(), h = 10;
+                int w = getWidth(), h = 14;
                 g2.setColor(new Color(224, 228, 233));
-                g2.fillRoundRect(0, 0, w, h, 8, 8);
+                g2.fillRoundRect(0, 0, w, h, 10, 10);
                 double pct = Math.max(0, c.percentualVida());
                 Color corBarra = pct > 0.5 ? new Color(76, 187, 105) : (pct > 0.2 ? new Color(240, 173, 61) : new Color(220, 70, 70));
                 int fillW = (int) (w * pct);
                 if (fillW > 0) {
                     g2.setColor(corBarra);
-                    g2.fillRoundRect(0, 0, fillW, h, 8, 8);
+                    g2.fillRoundRect(0, 0, fillW, h, 10, 10);
                 }
             }
         };
-        miniBarra.setPreferredSize(new Dimension(150, 10));
-        miniBarra.setMaximumSize(new Dimension(150, 10));
+        miniBarra.setPreferredSize(new Dimension(170, 14));
+        miniBarra.setMaximumSize(new Dimension(170, 14));
         miniBarra.setOpaque(false);
         miniBarra.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -173,16 +183,16 @@ public class PainelEquipe extends JPanel {
         vida.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         info.add(nome);
-        info.add(Box.createVerticalStrut(3));
+        info.add(Box.createVerticalStrut(4));
         info.add(tipo);
-        info.add(Box.createVerticalStrut(10));
+        info.add(Box.createVerticalStrut(12));
         info.add(miniBarra);
-        info.add(Box.createVerticalStrut(3));
+        info.add(Box.createVerticalStrut(4));
         info.add(vida);
-        info.add(Box.createVerticalStrut(8));
+        info.add(Box.createVerticalStrut(10));
         info.add(criarRodapeSelecao(c, corTipo, ativoAtual, podeTrocar));
-        p.add(info, BorderLayout.CENTER);
-        return p;
+        cardCriatura.add(info, BorderLayout.CENTER);
+        return cardCriatura;
     }
 
     /**
