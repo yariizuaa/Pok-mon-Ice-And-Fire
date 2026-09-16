@@ -234,6 +234,7 @@ public class PainelItens extends JPanel {
             JOptionPane.showMessageDialog(this, alvo.getNome() + " recuperou vida! Agora está com "
                     + alvo.getVidaAtual() + "/" + alvo.getVidaMaxima() + " HP.",
                     "Poção usada", JOptionPane.INFORMATION_MESSAGE);
+            janela.salvarProgresso();
             atualizar();
         }
     }
@@ -271,6 +272,7 @@ public class PainelItens extends JPanel {
             JOptionPane.showMessageDialog(this, alvo.getNome() + " acordou! Agora está com "
                     + alvo.getVidaAtual() + "/" + alvo.getVidaMaxima() + " HP.",
                     "Pokémon acordado", JOptionPane.INFORMATION_MESSAGE);
+            janela.salvarProgresso();
             atualizar();
         }
     }
