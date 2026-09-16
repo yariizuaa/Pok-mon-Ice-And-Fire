@@ -29,8 +29,9 @@ public class PainelBatalha extends JPanel {
         setOpaque(true);
         setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
 
-        add(criarCabecalho(), BorderLayout.NORTH);
-
+        // Sem cabecalho superior preto (ver Secao 4) - nome do treinador, tamanho
+        // da equipe e os atalhos de Equipe/Itens migraram para o topo do painel
+        // lateral (criarPainelLateral()), liberando essa faixa toda para a arena.
         JPanel centro = new JPanel(new BorderLayout(10, 10));
         centro.setOpaque(false);
         centro.add(arena, BorderLayout.CENTER);
@@ -42,6 +43,13 @@ public class PainelBatalha extends JPanel {
         barraSelvagem = new BarraVida(null);
         JPanel esqBarra = new JPanel(); esqBarra.setOpaque(false); esqBarra.add(barraJogador);
         JPanel dirBarra = new JPanel(); dirBarra.setOpaque(false); dirBarra.add(barraSelvagem);
+        // Desloca cada barra para o centro ficar alinhado com o sprite
+        // correspondente (a criatura do jogador e desenhada ~150px a partir da
+        // esquerda em PainelArena, a selvagem ~150px a partir da direita; a
+        // barra tem 240px de largura, entao 150 - 240/2 = 30px de margem
+        // encaixa o centro da barra bem debaixo do centro do sprite).
+        esqBarra.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
+        dirBarra.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 30));
         painelBarras.add(esqBarra, BorderLayout.WEST);
         painelBarras.add(dirBarra, BorderLayout.EAST);
         centro.add(painelBarras, BorderLayout.SOUTH);
@@ -59,46 +67,7 @@ public class PainelBatalha extends JPanel {
         g2.dispose();
     }
 
-    /** Cartao superior com nome do treinador e acesso a equipe/bestiario. */
-    private JPanel criarCabecalho() {
-        JPanel topo = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                UIUtil.pintarCartao(g2, getWidth(), getHeight(), 16, Constantes.PRETO, null);
-                g2.dispose();
-            }
-        };
-        topo.setOpaque(false);
-        topo.setBorder(BorderFactory.createEmptyBorder(12, 18, 12, 14));
-        topo.setPreferredSize(new Dimension(10, 60));
-
-        JPanel textos = new JPanel();
-        textos.setOpaque(false);
-        textos.setLayout(new BoxLayout(textos, BoxLayout.Y_AXIS));
-        lblTreinador.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblTreinador.setForeground(Color.WHITE);
-        lblEquipe.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblEquipe.setForeground(Constantes.VERMELHO);
-        textos.add(lblTreinador);
-        textos.add(lblEquipe);
-        topo.add(textos, BorderLayout.WEST);
-
-        JButton btnEquipe = UIUtil.botaoPill("Equipe / Bestiário", Constantes.VERMELHO, Constantes.PRETO, 190, 36);
-        btnEquipe.addActionListener(e -> janela.mostrar("EQUIPE"));
-        JButton btnItens = UIUtil.botaoPill("Itens", Constantes.CREME, Constantes.PRETO, 110, 36);
-        btnItens.addActionListener(e -> janela.mostrar("ITENS"));
-        JPanel wrapBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        wrapBtn.setOpaque(false);
-        wrapBtn.add(btnEquipe);
-        wrapBtn.add(btnItens);
-        topo.add(wrapBtn, BorderLayout.EAST);
-
-        return topo;
-    }
-
-    /** Cartao lateral com o registro de batalha e os botoes de acao. */
+    /** Cartao lateral com identificacao do treinador, atalhos, registro de batalha e botoes de acao. */
     private JPanel criarPainelLateral() {
         JPanel lado = new JPanel() {
             @Override
@@ -112,7 +81,30 @@ public class PainelBatalha extends JPanel {
         lado.setOpaque(false);
         lado.setLayout(new BoxLayout(lado, BoxLayout.Y_AXIS));
         lado.setPreferredSize(new Dimension(250, 10));
-        lado.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        lado.setBorder(BorderFactory.createEmptyBorder(14, 16, 16, 16));
+
+        // ---- Identificacao compacta do treinador (era o cabecalho preto de topo) ----
+        lblTreinador.setFont(new Font("SansSerif", Font.BOLD, 14));
+        lblTreinador.setForeground(Constantes.PRETO);
+        lblTreinador.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lblEquipe.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        lblEquipe.setForeground(Constantes.VERMELHO);
+        lblEquipe.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lado.add(lblTreinador);
+        lado.add(lblEquipe);
+        lado.add(Box.createVerticalStrut(8));
+
+        JButton btnEquipe = UIUtil.botaoPill("Equipe", Constantes.VERMELHO, Constantes.PRETO, 105, 32);
+        btnEquipe.addActionListener(e -> janela.mostrar("EQUIPE"));
+        JButton btnItens = UIUtil.botaoPill("Itens", Constantes.CREME, Constantes.PRETO, 105, 32);
+        btnItens.addActionListener(e -> janela.mostrar("ITENS"));
+        JPanel atalhos = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        atalhos.setOpaque(false);
+        atalhos.setAlignmentX(Component.LEFT_ALIGNMENT);
+        atalhos.add(btnEquipe);
+        atalhos.add(btnItens);
+        lado.add(atalhos);
+        lado.add(Box.createVerticalStrut(14));
 
         JLabel lblLog = new JLabel("Registro de batalha");
         lblLog.setFont(new Font("SansSerif", Font.BOLD, 13));
@@ -129,26 +121,29 @@ public class PainelBatalha extends JPanel {
         logArea.setForeground(Color.WHITE);
         logArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JScrollPane scroll = new JScrollPane(logArea);
-        scroll.setPreferredSize(new Dimension(218, 150));
-        scroll.setMaximumSize(new Dimension(218, 150));
+        scroll.setPreferredSize(new Dimension(218, 130));
+        scroll.setMaximumSize(new Dimension(218, 130));
         scroll.setAlignmentX(Component.LEFT_ALIGNMENT);
         scroll.setBorder(BorderFactory.createLineBorder(Constantes.PRETO, 1, true));
         lado.add(scroll);
-        lado.add(Box.createVerticalStrut(16));
+        lado.add(Box.createVerticalStrut(14));
 
-        btnExplorar = UIUtil.botaoPill("Explorar", Constantes.VERMELHO, Constantes.PRETO, 218, 42);
+        // Botoes de acao compactados: 42px -> 38px de altura, 10px -> 8px de
+        // espaco entre eles, para caber tudo (identificacao + atalhos + log +
+        // acoes) sem o painel lateral crescer mais do que antes.
+        btnExplorar = UIUtil.botaoPill("Explorar", Constantes.VERMELHO, Constantes.PRETO, 218, 38);
         btnExplorar.addActionListener(e -> explorar());
-        btnAtacar = UIUtil.botaoPill("Atacar", Constantes.CREME, Constantes.PRETO, 218, 42);
+        btnAtacar = UIUtil.botaoPill("Atacar", Constantes.CREME, Constantes.PRETO, 218, 38);
         btnAtacar.addActionListener(e -> atacar());
-        btnCapturar = UIUtil.botaoPill("Tentar Capturar", Constantes.VERMELHO, Constantes.PRETO, 218, 42);
+        btnCapturar = UIUtil.botaoPill("Tentar Capturar", Constantes.VERMELHO, Constantes.PRETO, 218, 38);
         btnCapturar.addActionListener(e -> capturar());
-        btnFugir = UIUtil.botaoPill("Fugir", Constantes.PRETO2, Color.WHITE, 218, 42);
+        btnFugir = UIUtil.botaoPill("Fugir", Constantes.PRETO2, Color.WHITE, 218, 38);
         btnFugir.addActionListener(e -> fugir());
 
         for (JButton b : new JButton[]{btnExplorar, btnAtacar, btnCapturar, btnFugir}) {
             b.setAlignmentX(Component.LEFT_ALIGNMENT);
             lado.add(b);
-            lado.add(Box.createVerticalStrut(10));
+            lado.add(Box.createVerticalStrut(8));
         }
 
         return lado;
