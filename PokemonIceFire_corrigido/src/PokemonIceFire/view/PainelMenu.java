@@ -1,6 +1,7 @@
 package PokemonIceFire.view;
 
 import PokemonIceFire.modelo.TipoElemental;
+import PokemonIceFire.persistencia.Persistencia;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,8 @@ public class PainelMenu extends JPanel {
     // uma unica vez. Se o arquivo nao existir, cai de volta no gradiente
     // solido + marca d'agua de pokebolas (ver paintComponent).
     private static final BufferedImage FUNDO = carregarFundo();
+
+    private JButton btnContinuar;
 
     private static BufferedImage carregarFundo() {
         try (InputStream in = PainelMenu.class.getResourceAsStream("backgrounds/menu.jpg")) {
@@ -45,13 +48,27 @@ public class PainelMenu extends JPanel {
         // ---- Trio de iniciais desenhado abaixo do titulo ----
         c.gridy = 2; c.insets = new Insets(10, 0, 10, 0); add(new TrioIniciais(), c);
 
-        JButton btnJogar = criarBotaoPokebola("Nova Jornada", Constantes.VERMELHO, true);
+        btnContinuar = criarBotaoPokebola("Continuar Jornada", Constantes.VERMELHO, true);
+        btnContinuar.addActionListener(e -> janela.continuarJornada());
+        c.gridy = 3; c.insets = new Insets(20, 0, 10, 0); add(btnContinuar, c);
+
+        JButton btnJogar = criarBotaoPokebola("Nova Jornada", Constantes.PRETO2, false);
         btnJogar.addActionListener(e -> janela.mostrar("ESCOLHA"));
-        c.gridy = 3; c.insets = new Insets(20, 0, 10, 0); add(btnJogar, c);
+        c.gridy = 4; c.insets = new Insets(10, 0, 10, 0); add(btnJogar, c);
 
         JButton btnSair = criarBotaoPokebola("Sair", Constantes.PRETO2, false);
         btnSair.addActionListener(e -> System.exit(0));
-        c.gridy = 4; c.insets = new Insets(10, 0, 10, 0); add(btnSair, c);
+        c.gridy = 5; c.insets = new Insets(10, 0, 10, 0); add(btnSair, c);
+    }
+
+    /**
+     * Mostra ou esconde o botão "Continuar Jornada" conforme exista ou não
+     * uma jornada salva em disco. Chamado por
+     * {@link JanelaPrincipal#mostrar} toda vez que o menu é exibido, já que
+     * o save pode ter sido criado ou apagado desde a última vez.
+     */
+    void atualizar() {
+        btnContinuar.setVisible(Persistencia.existeJornadaSalva());
     }
 
     /** Fundo com a imagem da floresta (modo "cover") + camada escura para manter o texto legivel. */
