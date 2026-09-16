@@ -226,6 +226,7 @@ public class PainelBatalha extends JPanel {
                 logArea.append("Escolha outra criatura na aba Equipe/Bestiário para continuar a batalha contra "
                         + batalhaAtual.getSelvagem().getNome() + "!\n");
             }
+            janela.salvarProgresso();
             atualizarBotoes();
         }
     }
@@ -321,6 +322,7 @@ public class PainelBatalha extends JPanel {
             batalhaAtual = null;
             Pokemon ativa = janela.getTreinador().getAtiva();
             arena.configurar(ativa != null ? ativa.getTipo() : null, false, null, false);
+            janela.salvarProgresso();
             atualizarBotoes();
         } else {
             logArea.append(selvagem.getNome() + " escapou da captura!\n");
