@@ -6,9 +6,9 @@ import java.awt.*;
 
 public class CartaoPokemon extends JPanel {
     CartaoPokemon(TipoElemental tipo, String nome, String habilidade, Runnable aoEscolher) {
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(14, 14, 16, 14));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setPreferredSize(new Dimension(230, 300));
 
         Color corTipo = tipo.corPrincipal();
@@ -26,23 +26,28 @@ public class CartaoPokemon extends JPanel {
             }
         };
         spritePanel.setPreferredSize(new Dimension(230, 150));
+        // sem limite maximo explicito, um JPanel comum aceitaria esticar por todo o
+        // espaco vertical sobrando no BoxLayout - travamos no mesmo tamanho do preferido.
+        spritePanel.setMaximumSize(new Dimension(230, 150));
         spritePanel.setOpaque(false);
-        add(spritePanel, BorderLayout.NORTH);
+        spritePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        add(spritePanel);
 
         JPanel infoPanel = new JPanel();
         infoPanel.setOpaque(false);
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(4, 16, 8, 16));
+        infoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblNome = new JLabel(nome);
         lblNome.setFont(new Font("Serif", Font.BOLD, 20));
         lblNome.setForeground(Constantes.PRETO);
-        lblNome.setAlignmentX(CENTER_ALIGNMENT);
+        lblNome.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblTipo = new JLabel("Tipo " + tipo.nomeExibicao());
         lblTipo.setFont(new Font("SansSerif", Font.BOLD, 13));
         lblTipo.setForeground(corTipo);
-        lblTipo.setAlignmentX(CENTER_ALIGNMENT);
+        lblTipo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JTextArea lblHabilidade = new JTextArea(habilidade);
         lblHabilidade.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -52,7 +57,7 @@ public class CartaoPokemon extends JPanel {
         lblHabilidade.setOpaque(false);
         lblHabilidade.setEditable(false);
         lblHabilidade.setFocusable(false);
-        lblHabilidade.setAlignmentX(CENTER_ALIGNMENT);
+        lblHabilidade.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblHabilidade.setMaximumSize(new Dimension(190, 60));
 
         infoPanel.add(lblNome);
@@ -60,15 +65,18 @@ public class CartaoPokemon extends JPanel {
         infoPanel.add(lblTipo);
         infoPanel.add(Box.createVerticalStrut(8));
         infoPanel.add(lblHabilidade);
-        add(infoPanel, BorderLayout.CENTER);
+        add(infoPanel);
 
-        JButton btn = UIUtil.botaoPill("Escolher", corTipo, Color.WHITE, 190, 40);
-        JPanel wrapBtn = new JPanel(new BorderLayout());
-        wrapBtn.setOpaque(false);
-        wrapBtn.setBorder(BorderFactory.createEmptyBorder(6, 4, 0, 4));
-        wrapBtn.add(btn, BorderLayout.CENTER);
-        btn.addActionListener(e -> aoEscolher.run());
-        add(wrapBtn, BorderLayout.SOUTH);
+        // empurra o botao para o rodape do cartao mesmo quando a habilidade
+        // ocupa menos ou mais linhas (evita o botao "flutuar" no meio do card)
+        add(Box.createVerticalGlue());
+
+        // Padronização e alinhamento do botão "Escolher": tamanho fixo (140x35,
+        // igual em todos os cartões) e centralizado no eixo do BoxLayout.
+        JButton btnEscolher = UIUtil.botaoPill("Escolher", corTipo, Color.WHITE, 140, 35);
+        btnEscolher.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnEscolher.addActionListener(e -> aoEscolher.run());
+        add(btnEscolher);
     }
 
     /** Cartao arredondado em tom marfim quente, com sombra suave, no lugar do antigo retangulo branco chapado. */
